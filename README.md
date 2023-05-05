@@ -1,52 +1,48 @@
 # Azure Terraform Pipeline with 2 Stages: Plan and Apply
 
-This repository contains a Terraform configuration and an Azure DevOps pipeline for managing Azure infrastructure as code using the Terraform AzureRM provider. The pipeline is designed with two stages: Plan and Apply, which streamline the process of provisioning and managing Azure resources.
+This README provides details about the Azure DevOps Terraform pipeline with two stages: Plan and Apply.
 
 ## Overview
 
-The Terraform Azure DevOps pipeline automates the process of creating, updating, or deleting Azure resources based on the provided Terraform configuration file. It ensures that the desired infrastructure is provisioned according to the defined configuration while minimizing human intervention and potential errors.
+This pipeline is designed specifically for Azure DevOps and uses the following stages:
 
-### Stage 1: Terraform Init and Plan
+1. **Terraform Init and Plan**: Initialize Terraform and generate an execution plan.
+2. **Terraform Apply**: Apply the generated execution plan to create or modify the infrastructure.
 
-This stage initializes the Terraform backend and generates an execution plan. The execution plan is a summary of the changes that Terraform will apply to the infrastructure. The stage includes the following jobs:
+## Features
 
-- **Install Terraform**: Installs the latest version of Terraform, or the specified version if provided.
-- **Checkout repository**: Retrieves the source code from the repository.
-- **Terraform Init**: Initializes the Terraform backend, which includes downloading the required provider plugins and setting up the remote backend for storing the Terraform state.
-- **Terraform Validate**: Validates the Terraform configuration files to ensure they are syntactically correct and internally consistent.
-- **Terraform Plan**: Generates an execution plan, showing the changes that will be made to the infrastructure.
-- **Publish Artifact: tfplan**: Saves the execution plan as a pipeline artifact for use in the next stage.
+- Utilizes Azure DevOps YAML pipelines
+- Separates the Terraform planning and applying stages
+- Validates the Terraform configuration before planning
+- Publishes the Terraform plan as an artifact for later use
 
-### Stage 2: Terraform Apply
+## Requirements
 
-This stage applies the generated execution plan to create, update, or delete the desired infrastructure. The stage includes the following jobs:
+- Azure DevOps account
+- Azure Service Principal for authentication
+- Azure Storage Account for storing Terraform remote state
+- Terraform configuration files in the repository
+- Install the [Terraform Microsoft DevLabs Extension](https://marketplace.visualstudio.com/items?itemName=ms-devlabs.custom-terraform-tasks&targetId=38d1a6f2-5cfa-416a-b5ca-23dcd7206c35&utm_source=vstsproduct&utm_medium=ExtHubManageList) from the Azure DevOps Marketplace
 
-- **Install Terraform**: Installs the latest version of Terraform, or the specified version if provided.
-- **Checkout repository**: Retrieves the source code from the repository.
-- **Download Artifact: tfplan**: Downloads the execution plan artifact from the previous stage.
-- **Terraform Init**: Re-initializes the Terraform backend, ensuring it is up-to-date.
-- **Terraform Apply**: Applies the execution plan, making the necessary changes to the infrastructure based on the plan.
+## Pipeline Stages
 
-## Prerequisites
+### 1. Terraform Init and Plan
 
-- A Terraform configuration file in your repository.
-- An Azure DevOps project with a build pipeline configured.
-- An Azure subscription and a Service Principal with sufficient permissions to create, modify, and delete resources in the subscription.
+This stage initializes Terraform, validates the configuration, generates an execution plan, and publishes it as an artifact. The following tasks are performed:
 
-## Usage
+- Install the latest version of Terraform
+- Checkout the repository
+- Initialize Terraform with the `-reconfigure` option
+- Validate the Terraform configuration
+- Generate a Terraform plan
+- Publish the Terraform plan as an artifact
 
-1. Fork or clone this repository.
-2. Add your Terraform configuration file to the repository.
-3. Configure the necessary variables in your Azure DevOps build pipeline:
-    - `serviceName`: The name of the Azure DevOps Service Principal.
-    - `remoteStateContainer`: The name of the Azure Storage container where Terraform state files will be stored.
-    - `storageAccessKey`: The access key for the Azure Storage account where the Terraform state files will be stored.
-4. Commit your Terraform configuration file to the repository.
-5. Run the build pipeline to create, update, or delete infrastructure as specified in your Terraform configuration file.
+### 2. Terraform Apply
 
-## Notes
+This stage applies the previously generated Terraform plan to create or modify the infrastructure. The following tasks are performed:
 
-- This pipeline assumes that you are using Azure Blob Storage for remote state management. If you are using a different backend, you will need to adjust the pipeline accordingly.
-- The pipeline uses the latest version of Terraform. If you need a specific version, change the `terraformVersion` input in the TerraformInstaller@0 tasks.
-- This pipeline uses the AzureRM provider for Terraform. If you are using a different provider, you will need to adjust
-
+- Install the latest version of Terraform
+- Checkout the repository
+- Download the Terraform plan artifact
+- Initialize Terraform with the `-reconfigure` option
+- Apply the Terraform plan with the `-auto-approve` and `-input=false` options
