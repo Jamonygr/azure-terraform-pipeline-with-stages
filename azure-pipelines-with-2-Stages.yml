@@ -30,7 +30,7 @@ stages:
       env:
         ARM_ACCESS_KEY: '<Your_Access_Key_for_the_Storage_account>'
         REMOTE_STORAGE_ACCOUNT: '<Your_Azure_Storage_Account_Name>'
-        REMOTE_STATE_CONTAINER: '<Your_Azure_Storage_Conainer_Name>'
+        REMOTE_STATE_CONTAINER: '<Your_Azure_Storage_Container_Name>'
 
     - task: TerraformTaskV1@0
       displayName: 'Terraform Validate'
@@ -81,7 +81,7 @@ stages:
       env:
         ARM_ACCESS_KEY: '<Your_Access_Key_for_the_Storage_account>'
         REMOTE_STORAGE_ACCOUNT: '<Your_Azure_Storage_Account_Name>'
-        REMOTE_STATE_CONTAINER: '<Your_Azure_Storage_Conainer_Name>'
+        REMOTE_STATE_CONTAINER: '<Your_Azure_Storage_Container_Name>'
 
     - task: TerraformTaskV1@0
       displayName: 'Terraform Apply'
