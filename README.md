@@ -15,6 +15,7 @@ This pipeline is designed specifically for Azure DevOps and uses the following s
 - Separates the Terraform planning and applying stages
 - Validates the Terraform configuration before planning
 - Publishes the Terraform plan as an artifact for later use
+- Runs on an Ubuntu-Latest virtual machine image
 
 ## Requirements
 
@@ -46,3 +47,8 @@ This stage applies the previously generated Terraform plan to create or modify t
 - Download the Terraform plan artifact
 - Initialize Terraform with the `-reconfigure` option
 - Apply the Terraform plan with the `-auto-approve` and `-input=false` options
+
+## Nodes
+
+The pipeline uses the `ubuntu-latest` virtual machine image as its build agent. This image provides a Linux-based environment for running the pipeline tasks.
+
