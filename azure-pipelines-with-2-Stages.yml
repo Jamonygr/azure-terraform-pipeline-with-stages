@@ -1,0 +1,93 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  serviceName: '<Your_Azure_DevOps_Service_Principal_Name>'
+  
+
+stages:
+- stage: TerraformInitAndPlan
+  displayName: 'Terraform Init and Plan'
+  jobs:
+  - job: TerraformInitAndPlanJob
+    displayName: 'Terraform Init and Plan Job'
+    steps:
+    - task: TerraformInstaller@0
+      displayName: 'Install Terraform'
+      inputs:
+        terraformVersion: 'latest'
+
+    - checkout: self
+      displayName: 'Checkout repository'
+
+    - script: |
+        terraform init -reconfigure
+      displayName: 'Terraform Init'
+      workingDirectory: '$(Build.SourcesDirectory)'
+      env:
+        ARM_ACCESS_KEY: '<Your_Access_Key_for_the_Storage_account>'
+        REMOTE_STORAGE_ACCOUNT: '<Your_Azure_Storage_Account_Name>'
+        REMOTE_STATE_CONTAINER: '<Your_Azure_Storage_Conainer_Name>'
+
+    - task: TerraformTaskV1@0
+      displayName: 'Terraform Validate'
+      inputs:
+        provider: 'azurerm'
+        command: 'validate'
+        workingDirectory: '$(Build.SourcesDirectory)'
+
+    - task: TerraformTaskV1@0
+      displayName: 'Terraform Plan'
+      inputs:
+        provider: 'azurerm'
+        command: 'plan'
+        workingDirectory: '$(Build.SourcesDirectory)'
+        environmentServiceNameAzureRM: $(serviceName)
+        commandOptions: '-out=tfplan'
+
+    - task: PublishPipelineArtifact@1
+      displayName: 'Publish Artifact: tfplan'
+      inputs:
+        targetPath: '$(Build.SourcesDirectory)/tfplan'
+        artifact: 'tfplan'
+
+- stage: TerraformApply
+  displayName: 'Terraform Apply'
+  jobs:
+  - job: TerraformApplyJob
+    displayName: 'Terraform Apply Job'
+    steps:
+    - task: TerraformInstaller@0
+      displayName: 'Install Terraform'
+      inputs:
+        terraformVersion: 'latest'
+
+    - checkout: self
+      displayName: 'Checkout repository'
+
+    - task: DownloadPipelineArtifact@2
+      displayName: 'Download Artifact: tfplan'
+      inputs:
+        artifact: 'tfplan'
+        path: '$(Build.SourcesDirectory)'
+
+    - script: |
+        terraform init -reconfigure
+      displayName: 'Terraform Init'
+      workingDirectory: '$(Build.SourcesDirectory)'
+      env:
+        ARM_ACCESS_KEY: '<Your_Access_Key_for_the_Storage_account>'
+        REMOTE_STORAGE_ACCOUNT: '<Your_Azure_Storage_Account_Name>'
+        REMOTE_STATE_CONTAINER: '<Your_Azure_Storage_Conainer_Name>'
+
+    - task: TerraformTaskV1@0
+      displayName: 'Terraform Apply'
+      inputs:
+        provider: 'azurerm'
+        command: 'apply'
+        workingDirectory: '$(Build.SourcesDirectory)'
+        environmentServiceNameAzureRM: $(serviceName)
+        commandOptions: '-auto-approve -input=false tfplan'
