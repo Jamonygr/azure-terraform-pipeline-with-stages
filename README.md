@@ -1,4 +1,4 @@
-Azure Terraform Pipeline with 2 Stages: Plan and Apply
+#Azure Terraform Pipeline with 2 Stages: Plan and Apply
 This repository contains a Terraform configuration and an Azure DevOps pipeline for managing Azure infrastructure as code using the Terraform AzureRM provider. The pipeline is designed with two stages: Plan and Apply, which streamline the process of provisioning and managing Azure resources.
 
 Overview
